@@ -146,6 +146,8 @@ benchmq conn -i "load-test" -c 200
 ```
 
 **Flags:**
+- `-h, --host string`: Hostname or IP address of the broker
+- `-p, --port int`: Port number of the broker (default: 1883)
 - `-c, --clients int`: Number of concurrent clients (default: 100)
 - `-d, --delay int`: Delay between connections in milliseconds (default: 1000)
 - `-i, --clientID string`: Client ID prefix (default: "benchmq-client")
@@ -175,6 +177,8 @@ benchmq pub -t important/data -q 2 -r -n 100
 ```
 
 **Flags:**
+- `-h, --host string`: Hostname or IP address of the broker
+- `-p, --port int`: Port number of the broker (default: 1883)
 - `-t, --topic string`: Topic to publish to (default: "benchmq")
 - `-m, --message string`: Message payload (default: "Hello, World!")
 - `-c, --clients int`: Number of concurrent publishers (default: 100)
@@ -209,6 +213,8 @@ benchmq sub -t test/topic -c 10 -n 10000 -d 5000
 ```
 
 **Flags:**
+- `-h, --host string`: Hostname or IP address of the broker (default: "localhost")
+- `-p, --port int`: Port number of the broker (default: 1883)
 - `-t, --topic string`: Topic to subscribe to (default: "benchmq")
 - `-c, --clients int`: Number of concurrent subscribers (default: 100)
 - `-n, --count int`: Expected messages per client (default: 1000)
