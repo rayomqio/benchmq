@@ -77,7 +77,7 @@ func NewBenchmark(cfg *config.Config, options ...Option) (*Bench, error) {
 		host:         cfg.Server.Host,
 		port:         cfg.Server.Port,
 		cfg:          cfg,
-		logger:       logger.NewBenchmarkLogger("Benchmark"),
+		logger:       logger.NewBenchmarkLogger("bench"),
 	}
 
 	for _, option := range options {

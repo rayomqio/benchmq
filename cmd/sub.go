@@ -34,73 +34,73 @@ Parameters:
 		// Parse flags
 		host, err := cmd.Flags().GetString("host")
 		if err != nil {
-			logger.Error("Failed to parse host", logger.ErrorAttr(err))
+			logger.Error("failed to parse host", logger.ErrorAttr(err))
 			return
 		}
 
 		port, err := cmd.Flags().GetUint16("port")
 		if err != nil {
-			logger.Error("Failed to parse port", logger.ErrorAttr(err))
+			logger.Error("failed to parse port", logger.ErrorAttr(err))
 			return
 		}
 
 		clientID, err := cmd.Flags().GetString("clientID")
 		if err != nil {
-			logger.Error("Failed to parse client ID", logger.ErrorAttr(err))
+			logger.Error("failed to parse client ID", logger.ErrorAttr(err))
 			return
 		}
 
 		clients, err := cmd.Flags().GetInt("clients")
 		if err != nil {
-			logger.Error("Failed to parse number of clients", logger.ErrorAttr(err))
+			logger.Error("failed to parse number of clients", logger.ErrorAttr(err))
 			return
 		}
 
 		delay, err := cmd.Flags().GetInt("delay")
 		if err != nil {
-			logger.Error("Failed to parse delay", logger.ErrorAttr(err))
+			logger.Error("failed to parse delay", logger.ErrorAttr(err))
 			return
 		}
 
 		count, err := cmd.Flags().GetInt("count")
 		if err != nil {
-			logger.Error("Failed to parse message count", logger.ErrorAttr(err))
+			logger.Error("failed to parse message count", logger.ErrorAttr(err))
 			return
 		}
 
 		topic, err := cmd.Flags().GetString("topic")
 		if err != nil {
-			logger.Error("Failed to parse topic", logger.ErrorAttr(err))
+			logger.Error("failed to parse topic", logger.ErrorAttr(err))
 			return
 		}
 
 		qos, err := cmd.Flags().GetUint16("qos")
 		if err != nil {
-			logger.Error("Failed to parse QoS", logger.ErrorAttr(err))
+			logger.Error("failed to parse QoS", logger.ErrorAttr(err))
 			return
 		}
 
 		cleanSession, err := cmd.Flags().GetBool("clean")
 		if err != nil {
-			logger.Error("Failed to parse clean session flag", logger.ErrorAttr(err))
+			logger.Error("failed to parse clean session flag", logger.ErrorAttr(err))
 			return
 		}
 
 		username, err := cmd.Flags().GetString("username")
 		if err != nil {
-			logger.Error("Failed to parse username", logger.ErrorAttr(err))
+			logger.Error("failed to parse username", logger.ErrorAttr(err))
 			return
 		}
 
 		password, err := cmd.Flags().GetString("password")
 		if err != nil {
-			logger.Error("Failed to parse password", logger.ErrorAttr(err))
+			logger.Error("failed to parse password", logger.ErrorAttr(err))
 			return
 		}
 
 		keepalive, err := cmd.Flags().GetUint16("keepalive")
 		if err != nil {
-			logger.Error("Failed to parse keepalive", logger.ErrorAttr(err))
+			logger.Error("failed to parse keepalive", logger.ErrorAttr(err))
 			return
 		}
 
@@ -120,13 +120,13 @@ Parameters:
 			bench.WithPort(port),
 		)
 		if err != nil {
-			logger.Error("Failed to create benchmark", logger.State("failed"), logger.ErrorAttr(err))
+			logger.Error("failed to create benchmark", logger.State("failed"), logger.ErrorAttr(err))
 			return
 		}
 
 		go func() {
 			<-sigs
-			logger.Info("Received shutdown signal", logger.State("interrupted"))
+			logger.Info("received shutdown signal", logger.State("interrupted"))
 			os.Exit(0)
 		}()
 
@@ -142,5 +142,5 @@ func init() {
 	subCmd.Flags().IntP("delay", "d", 1000, "Delay between subscription lifetime checks (ms)")
 	subCmd.Flags().IntP("count", "n", 1000, "Expected number of messages per client")
 	subCmd.Flags().Uint16P("qos", "q", 0, "Quality of service level (0, 1, 2)")
-	subCmd.Flags().StringP("topic", "t", "benchmq", "Topic to subscribe to")
+	subCmd.Flags().StringP("topic", "t", "bench/test", "Topic to subscribe to")
 }

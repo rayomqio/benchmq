@@ -50,7 +50,6 @@ func init() {
 	}
 
 	lcfg.Service = "benchmq"
-	lcfg.Version = Cfg.Version
 	lcfg.Environment = Cfg.Environment
 	logger.InitGlobalLogger(lcfg)
 	if Cfg.Environment != "production" && Cfg.Environment != "development" {
