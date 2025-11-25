@@ -17,6 +17,8 @@ var pubCmd = &cobra.Command{
 	Long: `Publish messages to a topic with specified parameters.
 
 Parameters:
+	- host: Hostname or IP address of the broker
+	- port: Port number of the broker
 	- clientID: Base client ID prefix (each client appends "-<n>")
     - clients: Number of concurrent clients
     - delay: Delay between messages in milliseconds
@@ -33,75 +35,87 @@ Parameters:
 		defer signal.Stop(sigs)
 
 		// Parse flags
+		host, err := cmd.Flags().GetString("host")
+		if err != nil {
+			logger.Error("failed to parse host", logger.ErrorAttr(err))
+			return
+		}
+
+		port, err := cmd.Flags().GetUint16("port")
+		if err != nil {
+			logger.Error("failed to parse port", logger.ErrorAttr(err))
+			return
+		}
+
 		clientID, err := cmd.Flags().GetString("clientID")
 		if err != nil {
-			logger.Error("Failed to parse client ID", logger.ErrorAttr(err))
+			logger.Error("failed to parse client ID", logger.ErrorAttr(err))
 			return
 		}
 
 		clients, err := cmd.Flags().GetInt("clients")
 		if err != nil {
-			logger.Error("Failed to parse number of clients", logger.ErrorAttr(err))
+			logger.Error("failed to parse number of clients", logger.ErrorAttr(err))
 			return
 		}
 
 		delay, err := cmd.Flags().GetInt("delay")
 		if err != nil {
-			logger.Error("Failed to parse delay", logger.ErrorAttr(err))
+			logger.Error("failed to parse delay", logger.ErrorAttr(err))
 			return
 		}
 
 		count, err := cmd.Flags().GetInt("count")
 		if err != nil {
-			logger.Error("Failed to parse message count", logger.ErrorAttr(err))
+			logger.Error("failed to parse message count", logger.ErrorAttr(err))
 			return
 		}
 
 		retain, err := cmd.Flags().GetBool("retain")
 		if err != nil {
-			logger.Error("Failed to parse retain flag", logger.ErrorAttr(err))
+			logger.Error("failed to parse retain flag", logger.ErrorAttr(err))
 			return
 		}
 
 		message, err := cmd.Flags().GetString("message")
 		if err != nil {
-			logger.Error("Failed to parse message", logger.ErrorAttr(err))
+			logger.Error("failed to parse message", logger.ErrorAttr(err))
 			return
 		}
 
 		topic, err := cmd.Flags().GetString("topic")
 		if err != nil {
-			logger.Error("Failed to parse topic", logger.ErrorAttr(err))
+			logger.Error("failed to parse topic", logger.ErrorAttr(err))
 			return
 		}
 
 		qos, err := cmd.Flags().GetUint16("qos")
 		if err != nil {
-			logger.Error("Failed to parse QoS", logger.ErrorAttr(err))
+			logger.Error("failed to parse QoS", logger.ErrorAttr(err))
 			return
 		}
 
 		cleanSession, err := cmd.Flags().GetBool("clean")
 		if err != nil {
-			logger.Error("Failed to parse clean session flag", logger.ErrorAttr(err))
+			logger.Error("failed to parse clean session flag", logger.ErrorAttr(err))
 			return
 		}
 
 		keepalive, err := cmd.Flags().GetUint16("keepalive")
 		if err != nil {
-			logger.Error("Failed to parse keepalive", logger.ErrorAttr(err))
+			logger.Error("failed to parse keepalive", logger.ErrorAttr(err))
 			return
 		}
 
 		username, err := cmd.Flags().GetString("username")
 		if err != nil {
-			logger.Error("Failed to parse username", logger.ErrorAttr(err))
+			logger.Error("failed to parse username", logger.ErrorAttr(err))
 			return
 		}
 
 		password, err := cmd.Flags().GetString("password")
 		if err != nil {
-			logger.Error("Failed to parse password", logger.ErrorAttr(err))
+			logger.Error("failed to parse password", logger.ErrorAttr(err))
 			return
 		}
 
@@ -119,15 +133,17 @@ Parameters:
 			bench.WithMessage(message),
 			bench.WithUsername(username),
 			bench.WithPassword(password),
+			bench.WithHost(host),
+			bench.WithPort(port),
 		)
 		if err != nil {
-			logger.Error("Failed to create benchmark", logger.State("failed"), logger.ErrorAttr(err))
+			logger.Error("failed to create benchmark", logger.State("failed"), logger.ErrorAttr(err))
 			return
 		}
 
 		go func() {
 			<-sigs
-			logger.Info("Received shutdown signal", logger.State("interrupted"))
+			logger.Info("received shutdown signal", logger.State("interrupted"))
 			os.Exit(0)
 		}()
 
@@ -139,16 +155,11 @@ func init() {
 	rootCmd.AddCommand(pubCmd)
 
 	// Register flags
-	pubCmd.Flags().StringP("clientID", "i", "benchmq-client", "Client ID for MQTT connections")
 	pubCmd.Flags().IntP("clients", "c", 100, "Number of concurrent clients to connect")
 	pubCmd.Flags().IntP("delay", "d", 1000, "Delay between messages in milliseconds")
 	pubCmd.Flags().IntP("count", "n", 1000, "Number of messages to publish per client")
 	pubCmd.Flags().BoolP("retain", "r", false, "Retain the last message")
 	pubCmd.Flags().Uint16P("qos", "q", 0, "Quality of service level (0, 1, 2)")
 	pubCmd.Flags().StringP("message", "m", "Hello, World!", "Message to publish")
-	pubCmd.Flags().StringP("topic", "t", "benchmq", "Topic to publish messages to")
-	pubCmd.Flags().BoolP("clean", "x", true, "Clean previous session when connecting")
-	pubCmd.Flags().Uint16P("keepalive", "k", 60, "Keepalive interval in seconds")
-	pubCmd.Flags().StringP("username", "u", "", "Username for MQTT connections")
-	pubCmd.Flags().StringP("password", "p", "", "Password for MQTT connections")
+	pubCmd.Flags().StringP("topic", "t", "bench/test", "Topic to publish messages to")
 }

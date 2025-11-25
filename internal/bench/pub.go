@@ -11,7 +11,7 @@ import (
 
 func (b *Bench) PublishMessages() {
 	start := time.Now()
-	b.logger.Info("Started publish benchmark", logger.String("start", start.Format(time.RFC3339Nano)))
+	b.logger.Info("started publish benchmark", logger.String("start", start.Format(time.RFC3339Nano)))
 
 	var failed int32
 	var succeeded int32
@@ -30,13 +30,13 @@ func (b *Bench) PublishMessages() {
 			cfg.Client.Username = b.username
 			cfg.Client.Password = b.password
 			client := mqtt.NewClient(&cfg)
-			b.logger.Info("Connecting Client", logger.ClientID(id), logger.State("connecting"))
-
 			if err := client.Connect(); err != nil {
 				atomic.AddInt32(&failed, int32(b.messageCount))
-				b.logger.Error("Client connection failed", logger.ClientID(id), logger.ErrorAttr(err))
+				b.logger.Error("couldn't establish client", logger.ClientID(id), logger.ErrorAttr(err))
 				return
 			}
+			b.logger.LogClientConnection(cfg.Client.ClientID)
+
 			defer client.Disconnect()
 
 			for j := 0; j < b.messageCount; j++ {
@@ -46,11 +46,11 @@ func (b *Bench) PublishMessages() {
 
 				err := client.Publish(b.topic, byte(b.qos), b.retained, b.message, func() {
 					atomic.AddInt32(&succeeded, 1)
-					b.logger.LogPublish(id, b.topic, int(b.qos), b.retained)
+					b.logger.LogPublish(id, b.topic, int(b.qos))
 				})
 				if err != nil {
 					atomic.AddInt32(&failed, 1)
-					b.logger.Error("Failed to publish message", logger.ErrorAttr(err))
+					b.logger.Error("failed to publish message", logger.ErrorAttr(err))
 				}
 			}
 		}(clientID)
@@ -62,7 +62,7 @@ func (b *Bench) PublishMessages() {
 	total := b.clients * b.messageCount
 	throughput := float64(total) / elapsed
 
-	b.logger.Info("Finished publish benchmark",
+	b.logger.Info("finished publish benchmark",
 		logger.Int("clients", b.clients),
 		logger.Int("messagesPerClient", b.messageCount),
 		logger.Int("totalMessages", total),

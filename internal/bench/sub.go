@@ -11,7 +11,7 @@ import (
 
 func (b *Bench) Subscribe() {
 	start := time.Now()
-	b.logger.Info("Started subscribe benchmark", logger.String("start", start.Format(time.RFC3339Nano)))
+	b.logger.Info("started subscribe benchmark", logger.String("start", start.Format(time.RFC3339Nano)))
 
 	var received int64
 	var failed int64
@@ -31,21 +31,20 @@ func (b *Bench) Subscribe() {
 			cfg.Client.Password = b.password
 			client := mqtt.NewClient(&cfg)
 
-			b.logger.Info("Connecting subscriber", logger.ClientID(id), logger.State("connecting"))
 			if err := client.Connect(); err != nil {
 				atomic.AddInt64(&failed, 1)
-				b.logger.Error("Subscriber connection failed", logger.ClientID(id), logger.ErrorAttr(err))
+				b.logger.Error("subscriber connection failed", logger.ClientID(id), logger.ErrorAttr(err))
 				return
 			}
-			defer client.Disconnect()
+			// defer client.Disconnect()
+			b.logger.LogClientConnection(cfg.Client.ClientID)
 
-			err := client.Subscribe(b.topic, byte(b.qos), b.retained, func(payload string) {
+			if err := client.Subscribe(b.topic, byte(b.qos), b.retained, func(payload string) {
 				atomic.AddInt64(&received, 1)
 				b.logger.LogSubscribe(id, b.topic, int(b.qos), logger.String("payload", payload))
-			})
-			if err != nil {
+			}); err != nil {
 				atomic.AddInt64(&failed, 1)
-				b.logger.Error("Failed to subscribe", logger.ClientID(id), logger.ErrorAttr(err))
+				b.logger.Error("failed to subscribe", logger.ClientID(id), logger.ErrorAttr(err))
 				return
 			}
 
@@ -62,7 +61,7 @@ func (b *Bench) Subscribe() {
 	elapsed := time.Since(start).Seconds()
 	expected := int64(b.clients) * int64(b.messageCount)
 	throughput := float64(received) / elapsed
-	b.logger.Info("Finished subscribe benchmark",
+	b.logger.Info("finished subscribe benchmark",
 		logger.Int("clients", b.clients),
 		logger.Any("expectedMessages", expected),
 		logger.Any("received", received),

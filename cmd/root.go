@@ -50,10 +50,17 @@ func init() {
 	}
 
 	lcfg.Service = "benchmq"
-	lcfg.Version = Cfg.Version
 	lcfg.Environment = Cfg.Environment
 	logger.InitGlobalLogger(lcfg)
 	if Cfg.Environment != "production" && Cfg.Environment != "development" {
 		logger.Warn("Invalid server environment config value, assigning default development.", logger.String("environment", Cfg.Environment))
 	}
+
+	rootCmd.PersistentFlags().StringP("host", "H", "localhost", "Hostname or IP address of the MQTT broker")
+	rootCmd.PersistentFlags().Uint16P("port", "P", 1883, "Port number of the MQTT broker")
+	rootCmd.PersistentFlags().StringP("clientID", "i", "benchmq-client", "Client ID for MQTT connections")
+	rootCmd.PersistentFlags().BoolP("clean", "x", true, "Clean previous session when connecting")
+	rootCmd.PersistentFlags().Uint16P("keepalive", "k", 60, "Keepalive interval in seconds")
+	rootCmd.PersistentFlags().StringP("username", "u", "", "Username for MQTT connections")
+	rootCmd.PersistentFlags().StringP("password", "p", "", "Password for MQTT connections")
 }
