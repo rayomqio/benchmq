@@ -19,6 +19,18 @@ var connCmd = &cobra.Command{
 		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
 		// Parse flags
+		host, err := cmd.Flags().GetString("host")
+		if err != nil {
+			logger.Error("Failed to parse host flag", logger.ErrorAttr(err))
+			return
+		}
+
+		port, err := cmd.Flags().GetUint16("port")
+		if err != nil {
+			logger.Error("Failed to parse port flag", logger.ErrorAttr(err))
+			return
+		}
+
 		clients, err := cmd.Flags().GetInt("clients")
 		if err != nil {
 			logger.Error("Failed to parse clients flag", logger.ErrorAttr(err))
@@ -71,6 +83,8 @@ var connCmd = &cobra.Command{
 			bench.WithClientID(clientID),
 			bench.WithUsername(username),
 			bench.WithPassword(password),
+			bench.WithHost(host),
+			bench.WithPort(port),
 		)
 		if err != nil {
 			logger.Error("Failed to create benchmark", logger.ErrorAttr(err))
@@ -98,11 +112,6 @@ func init() {
 	rootCmd.AddCommand(connCmd)
 
 	// Register flags
-	connCmd.Flags().StringP("clientID", "i", "benchmq-client", "Client ID for MQTT connections")
 	connCmd.Flags().IntP("clients", "c", 100, "Number of concurrent clients to connect")
 	connCmd.Flags().IntP("delay", "d", 1000, "Delay between each client connection in milliseconds")
-	connCmd.Flags().BoolP("clean", "x", true, "Clean previous session when connecting")
-	connCmd.Flags().Uint16P("keepalive", "k", 60, "Keepalive interval in seconds")
-	connCmd.Flags().StringP("username", "u", "", "Username for MQTT connections")
-	connCmd.Flags().StringP("password", "p", "", "Password for MQTT connections")
 }

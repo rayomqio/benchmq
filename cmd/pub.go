@@ -17,6 +17,8 @@ var pubCmd = &cobra.Command{
 	Long: `Publish messages to a topic with specified parameters.
 
 Parameters:
+	- host: Hostname or IP address of the broker
+	- port: Port number of the broker
 	- clientID: Base client ID prefix (each client appends "-<n>")
     - clients: Number of concurrent clients
     - delay: Delay between messages in milliseconds
@@ -33,6 +35,18 @@ Parameters:
 		defer signal.Stop(sigs)
 
 		// Parse flags
+		host, err := cmd.Flags().GetString("host")
+		if err != nil {
+			logger.Error("Failed to parse host", logger.ErrorAttr(err))
+			return
+		}
+
+		port, err := cmd.Flags().GetUint16("port")
+		if err != nil {
+			logger.Error("Failed to parse port", logger.ErrorAttr(err))
+			return
+		}
+
 		clientID, err := cmd.Flags().GetString("clientID")
 		if err != nil {
 			logger.Error("Failed to parse client ID", logger.ErrorAttr(err))
@@ -119,6 +133,8 @@ Parameters:
 			bench.WithMessage(message),
 			bench.WithUsername(username),
 			bench.WithPassword(password),
+			bench.WithHost(host),
+			bench.WithPort(port),
 		)
 		if err != nil {
 			logger.Error("Failed to create benchmark", logger.State("failed"), logger.ErrorAttr(err))
@@ -139,7 +155,6 @@ func init() {
 	rootCmd.AddCommand(pubCmd)
 
 	// Register flags
-	pubCmd.Flags().StringP("clientID", "i", "benchmq-client", "Client ID for MQTT connections")
 	pubCmd.Flags().IntP("clients", "c", 100, "Number of concurrent clients to connect")
 	pubCmd.Flags().IntP("delay", "d", 1000, "Delay between messages in milliseconds")
 	pubCmd.Flags().IntP("count", "n", 1000, "Number of messages to publish per client")
@@ -147,8 +162,4 @@ func init() {
 	pubCmd.Flags().Uint16P("qos", "q", 0, "Quality of service level (0, 1, 2)")
 	pubCmd.Flags().StringP("message", "m", "Hello, World!", "Message to publish")
 	pubCmd.Flags().StringP("topic", "t", "benchmq", "Topic to publish messages to")
-	pubCmd.Flags().BoolP("clean", "x", true, "Clean previous session when connecting")
-	pubCmd.Flags().Uint16P("keepalive", "k", 60, "Keepalive interval in seconds")
-	pubCmd.Flags().StringP("username", "u", "", "Username for MQTT connections")
-	pubCmd.Flags().StringP("password", "p", "", "Password for MQTT connections")
 }

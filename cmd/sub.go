@@ -16,6 +16,8 @@ var subCmd = &cobra.Command{
 	Long: `Subscribe to a topic with specified parameters.
 
 Parameters:
+	- host: Hostname or IP address of the broker
+	- port: Port number of the broker
 	- clientID: Base client ID prefix (each client appends "-<n>")
     - clients: Number of concurrent subscribers
     - qos: Quality of service level (0, 1, 2)
@@ -30,6 +32,18 @@ Parameters:
 		defer signal.Stop(sigs)
 
 		// Parse flags
+		host, err := cmd.Flags().GetString("host")
+		if err != nil {
+			logger.Error("Failed to parse host", logger.ErrorAttr(err))
+			return
+		}
+
+		port, err := cmd.Flags().GetUint16("port")
+		if err != nil {
+			logger.Error("Failed to parse port", logger.ErrorAttr(err))
+			return
+		}
+
 		clientID, err := cmd.Flags().GetString("clientID")
 		if err != nil {
 			logger.Error("Failed to parse client ID", logger.ErrorAttr(err))
@@ -102,6 +116,8 @@ Parameters:
 			bench.WithKeepAlive(keepalive),
 			bench.WithUsername(username),
 			bench.WithPassword(password),
+			bench.WithHost(host),
+			bench.WithPort(port),
 		)
 		if err != nil {
 			logger.Error("Failed to create benchmark", logger.State("failed"), logger.ErrorAttr(err))
@@ -122,14 +138,9 @@ func init() {
 	rootCmd.AddCommand(subCmd)
 
 	// Register flags
-	subCmd.Flags().StringP("clientID", "i", "benchmq-subscriber", "Client ID for MQTT connections")
 	subCmd.Flags().IntP("clients", "c", 100, "Number of concurrent subscriber clients")
 	subCmd.Flags().IntP("delay", "d", 1000, "Delay between subscription lifetime checks (ms)")
 	subCmd.Flags().IntP("count", "n", 1000, "Expected number of messages per client")
 	subCmd.Flags().Uint16P("qos", "q", 0, "Quality of service level (0, 1, 2)")
 	subCmd.Flags().StringP("topic", "t", "benchmq", "Topic to subscribe to")
-	subCmd.Flags().BoolP("clean", "x", true, "Clean previous session when connecting")
-	subCmd.Flags().Uint16P("keepalive", "k", 60, "Keepalive interval in seconds")
-	subCmd.Flags().StringP("username", "u", "", "Username for MQTT connections")
-	subCmd.Flags().StringP("password", "p", "", "Password for MQTT connections")
 }
